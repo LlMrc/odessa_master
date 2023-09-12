@@ -19,10 +19,13 @@ class PageManager {
   final isShuffleModeEnabledNotifier = ValueNotifier<bool>(false);
 
   final _audioHandler = getIt<AudioHandler>();
+  // Indicate if application has permission to the library.
+  bool _hasPermission = false;
+  final query = OnAudioQuery();
 
   // Events: Calls coming from the UI
   void init() async {
-    await _loadPlaylist();
+    await checkAndRequestPermissions();
     _listenToChangesInPlaylist();
     _listenToPlaybackState();
     _listenToCurrentPosition();
@@ -34,8 +37,13 @@ class PageManager {
   List<MediaItem> mediaItems = [];
   Future<void> _loadPlaylist() async {
     late List<SongModel> playlist = [];
-    final query = OnAudioQuery();
-    playlist = await query.querySongs();
+
+    playlist = await query.querySongs(
+      sortType: null,
+      orderType: OrderType.ASC_OR_SMALLER,
+      uriType: UriType.EXTERNAL,
+      ignoreCase: true,
+    );
 
     mediaItems = playlist
         .map((song) => MediaItem(
@@ -171,5 +179,15 @@ class PageManager {
 
   void stop() {
     _audioHandler.stop();
+  }
+
+  Future<void> checkAndRequestPermissions({bool retry = false}) async {
+    // The param 'retryRequest' is false, by default.
+    _hasPermission = await query.checkAndRequest(
+      retryRequest: retry,
+    );
+
+    // Only call update the UI if application has all required permissions.
+    _hasPermission ? await _loadPlaylist() : null;
   }
 }

@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:pdf_reader/multimedia/page_manager.dart';
 
@@ -26,7 +25,7 @@ class _MultimrdiaState extends State<Multimedia> {
   @override
   void initState() {
     super.initState();
-    
+
     _creatBannerAd();
   }
 
@@ -41,7 +40,8 @@ class _MultimrdiaState extends State<Multimedia> {
 
   @override
   Widget build(BuildContext context) {
-     const String assetName = 'assets/illustration/no_music.svg';
+    const String assetName = 'assets/illustration/no_music.svg';
+    final size = MediaQuery.of(context).size;
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     SystemChrome.setSystemUIOverlayStyle(
@@ -66,14 +66,12 @@ class _MultimrdiaState extends State<Multimedia> {
                     if (playlistTitles.isEmpty) {
                       return Center(
                           child: Padding(
-                        padding: const EdgeInsets.only(top: 100),
+                        padding: EdgeInsets.only(top: isPortrait ? 24.0 : 30.0),
                         child: Column(
                           children: [
-                             SvgPicture.asset(
-assetName,
-semanticsLabel: 'no mp3 files found',
-
-),
+                            SvgPicture.asset(assetName,
+                                semanticsLabel: 'no mp3 files found',
+                                height: isPortrait ? 350 : 200),
                             const Text("No Audio Files found",
                                 style: TextStyle(
                                     fontWeight: FontWeight.w700,
@@ -93,8 +91,11 @@ semanticsLabel: 'no mp3 files found',
                       child: ListView.builder(
                         itemCount: playlistTitles.length,
                         itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 14),
+                          return Container(
+                            padding: EdgeInsets.symmetric(
+                                vertical: size.width > 600 ? 8 : 0,
+                                horizontal:
+                                    size.width > 600 ? size.width * .10 : 10),
                             child: Column(
                               children: [
                                 Container(
@@ -214,27 +215,27 @@ semanticsLabel: 'no mp3 files found',
                 ),
                 Container(
                   padding: const EdgeInsets.all(8.0),
-                  child: const SizedBox(
+                  child: SizedBox(
                     height: 240,
                     width: 270,
                     child: Stack(children: [
                       Align(
                         alignment: Alignment.center,
-                        child: PlayButton(),
+                        child: roundedContainer(const PlayButton()),
                       ),
-                      Align(
+                      const Align(
                         alignment: Alignment.topCenter,
                         child: ShuffleButton(),
                       ),
                       Align(
                         alignment: Alignment.centerRight,
-                        child: NextSongButton(),
+                        child: roundedContainer(const NextSongButton()),
                       ),
                       Align(
                         alignment: Alignment.centerLeft,
-                        child: PreviousSongButton(),
+                        child: roundedContainer(const PreviousSongButton()),
                       ),
-                      Align(
+                      const Align(
                         alignment: Alignment.bottomCenter,
                         child: RepeatButton(),
                       ),
@@ -243,5 +244,21 @@ semanticsLabel: 'no mp3 files found',
                 ),
               ],
             )));
+  }
+
+  Widget roundedContainer(child) {
+    return Container(
+      child: child,
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.indigo.shade400,
+              Colors.white,
+            ],
+          ),
+          borderRadius: BorderRadius.circular(50),
+          border: Border.all(color: Colors.white, width: 2.0)),
+    );
   }
 }

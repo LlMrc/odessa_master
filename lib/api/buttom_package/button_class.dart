@@ -36,14 +36,16 @@ class RepeatButton extends StatelessWidget {
         Icon icon;
         switch (value) {
           case RepeatState.off:
-            icon = Icon(Icons.repeat, color: Colors.amber[100]);
+            icon = Icon(Icons.repeat, size: 30, color: Colors.blue.shade800);
             break;
           case RepeatState.repeatSong:
-            icon = const Icon(Icons.repeat_one);
+            icon =
+                Icon(Icons.repeat_one, size: 30, color: Colors.blue.shade800);
             break;
           case RepeatState.repeatPlaylist:
             icon = const Icon(
               Icons.repeat,
+              size: 30,
               color: Colors.red,
             );
             break;
@@ -146,10 +148,12 @@ class ShuffleButton extends StatelessWidget {
               ? const Icon(
                   Icons.shuffle,
                   color: Colors.black,
+                  size: 30,
                 )
               : Icon(
                   Icons.shuffle,
-                  color: Colors.amber[100],
+                  size: 30,
+                  color: Colors.blue.shade800,
                 ),
           onPressed: pageManager.shuffle,
         );
@@ -170,7 +174,7 @@ class CurrentSongTitle extends StatelessWidget {
             child: Text(title,
                 maxLines: 1,
                 overflow: TextOverflow.fade,
-                style: const TextStyle(fontSize: 16)));
+                style: const TextStyle(fontSize: 24)));
       },
     );
   }

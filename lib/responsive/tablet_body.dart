@@ -32,6 +32,7 @@ class _TableteBodyState extends State<TableteBody> {
         children: [
           NavigationRail(
               leading: Material(
+                  elevation: 4,
                   clipBehavior: Clip.hardEdge,
                   shape: const CircleBorder(),
                   child: InkWell(
@@ -46,7 +47,7 @@ class _TableteBodyState extends State<TableteBody> {
               unselectedLabelTextStyle:
                   labelStyle.copyWith(color: unselectedColor),
               selectedIconTheme:
-                  const IconThemeData(color: Colors.white, size: 30),
+                  const IconThemeData(color: Colors.red, size: 30),
               extended: isExpanded,
               unselectedIconTheme: const IconThemeData(color: Colors.white38),
               backgroundColor: const Color(0xff0F52BA),
@@ -57,15 +58,15 @@ class _TableteBodyState extends State<TableteBody> {
                 NavigationRailDestination(
                     selectedIcon: Icon(Icons.apps),
                     icon: Icon(Icons.home),
-                    label: Text('Home')),
+                    label: Text('DOCUMENTS')),
                 NavigationRailDestination(
                     selectedIcon: Icon(Icons.sticky_note_2),
                     icon: Icon(Icons.sticky_note_2_outlined),
-                    label: Text('Note')),
+                    label: Text('NOTES')),
                 NavigationRailDestination(
                     selectedIcon: Icon(FontAwesomeIcons.music),
                     icon: Icon(Icons.music_note),
-                    label: Text('Audio')),
+                    label: Text('AUDIO')),
               ],
               trailing: AnimatedRailWidget(
                 isExtanded: extendedCallBack,
@@ -80,7 +81,7 @@ class _TableteBodyState extends State<TableteBody> {
                           SizedBox(
                             width: 10,
                           ),
-                          Text('Logout')
+                          Text('CLOSE')
                         ],
                       )
                     : const Icon(Icons.logout),

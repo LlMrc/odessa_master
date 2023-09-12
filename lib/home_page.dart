@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/material.dart';
 import 'package:pdf_reader/multimedia/page_manager.dart';
 import 'package:pdf_reader/responsive/tablet_body.dart';
 import 'package:pdf_reader/service/service.dart';
@@ -14,12 +15,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   @override
   void initState() {
-    getIt<PageManager>().init();
     super.initState();
+    getIt<PageManager>().init();
   }
-
 
   @override
   Widget build(BuildContext context) {

@@ -3,7 +3,6 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-
 import '../data/box.dart';
 import '../data/datahelper.dart';
 import 'add_note.dart';
@@ -29,7 +28,8 @@ class NotePageState extends State<NotePage> {
 
   @override
   Widget build(BuildContext context) {
-     const String assetName = 'assets/illustration/no_note.svg';
+    final size = MediaQuery.of(context).size;
+    const String assetName = 'assets/illustration/no_note.svg';
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
     return Scaffold(
@@ -56,27 +56,24 @@ class NotePageState extends State<NotePage> {
               children: [
                 Visibility(visible: isvisible, child: suggestList()),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  padding: EdgeInsets.symmetric(
+                      horizontal: size.width > 600 ? size.width * .10 : 8),
                   child: ValueListenableBuilder<Box<Note>>(
                       valueListenable: NoteBoxes.getNotes().listenable(),
                       builder: (context, box, _) {
                         final currentNote = box.values.toList().cast<Note>();
                         if (currentNote.isEmpty) {
                           return Center(
-                              
                             child: Padding(
-                              padding: const EdgeInsets.only(top: 60.0),
+                              padding:
+                                  EdgeInsets.only(top: isPortrait ? 64 : 16.0),
                               child: Column(
                                 children: [
-                                   SvgPicture.asset(
-                                    
-assetName,
-semanticsLabel: 'no note found',
-
-
-),
+                                  SvgPicture.asset(assetName,
+                                      semanticsLabel: 'no note found',
+                                      height: isPortrait ? 300 : 150),
                                   const Text(
-                                    'No notes Found',
+                                    'No note Found',
                                     style: TextStyle(
                                         fontSize: 14,
                                         color: Colors.white,
@@ -151,7 +148,7 @@ semanticsLabel: 'no note found',
       //--------}----------- floatingActionButton--------------------------------
 
       floatingActionButton: FloatingActionButton(
-         
+          heroTag: const {"edit": "edit"},
           tooltip: 'Add note',
           elevation: 4,
           child: const Icon(

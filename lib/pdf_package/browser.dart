@@ -15,18 +15,37 @@ class Browser extends StatefulWidget {
 }
 
 class _BrowserState extends State<Browser> {
-  double progress = 0;
-
-
-
+  double progressBar = 0;
+  late WebViewController controller;
   @override
   void initState() {
     super.initState();
     createInterstitialAds();
-   
-  }
 
-  late WebViewController controller;
+    controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0x00000000))
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onProgress: (int progress) {
+            // Update loading bar.
+            progressBar = progress / 100;
+          },
+          onPageStarted: (String url) {},
+          onPageFinished: (String url) {},
+          onWebResourceError: (WebResourceError error) {},
+          onNavigationRequest: (NavigationRequest request) {
+            if (request.url.startsWith(
+              widget.initialUrl,
+            )) {
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
+          },
+        ),
+      )
+      ..loadRequest(Uri.parse(widget.initialUrl));
+  }
 
   @override
   void dispose() {
@@ -50,21 +69,14 @@ class _BrowserState extends State<Browser> {
           body: Column(
             children: [
               LinearProgressIndicator(
-                value: progress,
+                value: progressBar,
                 color: Colors.red,
                 backgroundColor: Colors.black12,
               ),
               Expanded(
-                child: WebView(
-                  initialUrl: widget.initialUrl,
-                  javascriptMode: JavascriptMode.unrestricted,
-                  onWebViewCreated: (controller) {
-                    this.controller = controller;
-                  },
-                  onPageStarted: (url) {},
-                  onProgress: (progress) => setState(() {
-                    this.progress = progress / 100;
-                  }),
+                child: WebViewWidget(
+                  controller: controller,
+
                   // gestureRecognizers: Set()
                   //   ..add(Factory<VerticalDragGestureRecognizer>(
                   //       () => VerticalDragGestureRecognizer())),
@@ -87,11 +99,11 @@ class _BrowserState extends State<Browser> {
                     icon: const Icon(Icons.clear_rounded),
                     onPressed: () {
                       controller.clearCache();
-                      CookieManager().clearCookies();
                     }),
                 IconButton(
                     onPressed: () async {
-                      controller.loadUrl("https://www.twitter.com/");
+                      controller
+                          .loadRequest(Uri.parse("https://www.twitter.com/"));
                       await Future.delayed(const Duration(seconds: 20));
                       _showInterstitialAds();
                     },
@@ -99,7 +111,8 @@ class _BrowserState extends State<Browser> {
                         color: Colors.blue)),
                 IconButton(
                     onPressed: () async {
-                      controller.loadUrl("https://www.facebook.com/");
+                      controller
+                          .loadRequest(Uri.parse("https://www.facebook.com/"));
                       await Future.delayed(const Duration(seconds: 20));
                       _showInterstitialAds();
                     },
@@ -107,7 +120,8 @@ class _BrowserState extends State<Browser> {
                         color: Color(0xff0F52BA))),
                 IconButton(
                     onPressed: () async {
-                      controller.loadUrl("https://www.youtube.com/");
+                      controller
+                          .loadRequest(Uri.parse("https://www.youtube.com/"));
                       await Future.delayed(const Duration(seconds: 15));
                       _showInterstitialAds();
                     },
@@ -117,7 +131,8 @@ class _BrowserState extends State<Browser> {
                     )),
                 IconButton(
                     onPressed: () async {
-                      controller.loadUrl("https://www.amazon.com/");
+                      controller
+                          .loadRequest(Uri.parse("https://www.amazon.com/"));
                       await Future.delayed(const Duration(seconds: 10));
                       _showInterstitialAds();
                     },
@@ -130,6 +145,7 @@ class _BrowserState extends State<Browser> {
                       if (await controller.canGoBack()) {
                         _showInterstitialAds();
                         controller.reload();
+                        WebViewCookieManager().clearCookies();
                       }
                     },
                     icon: const Icon(Icons.refresh)),
@@ -140,8 +156,6 @@ class _BrowserState extends State<Browser> {
       ),
     );
   }
-
- 
 
   InterstitialAd? _interstitialAd;
 

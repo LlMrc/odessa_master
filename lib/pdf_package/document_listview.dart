@@ -5,15 +5,12 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-//import 'package:path/path.dart' as p;
 import 'package:pdf_reader/pdf_package/thumbnails.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../api/pdf_api.dart';
 import '../constant.dart';
-import '../multimedia/page_manager.dart';
 import '../service/remote_google_book.dart';
-import '../service/service.dart';
 import 'browser.dart';
 import 'favorite_pdf.dart';
 
@@ -24,38 +21,11 @@ class DocumentListview extends StatefulWidget {
   _DocumentListviewState createState() => _DocumentListviewState();
 }
 
-late PermissionStatus status;
-
 class _DocumentListviewState extends State<DocumentListview> {
-  bool isvisible = false;
-
   var editingController = TextEditingController();
+  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
   ///////////////////////// REQUEST PERMISSION////////////////////////////
-
-  Future<void> checkStoragePermission() async {
-    status = await Permission.storage.request();
-    var status1 = (await Permission.manageExternalStorage.request());
-
-    String getVersion = await getPhoneVersion();
-    int version = int.parse(getVersion);
-    // get  storage  permission
-    if (status == PermissionStatus.granted) {
-      await getPath();
-      setState(() => getIt<PageManager>().init());
-    } else
-    //  check Android version
-    if (version > 30) {
-      if (status1 == PermissionStatus.granted) {
-        await getPath();
-        getIt<PageManager>().init();
-      } else if (status1 == PermissionStatus.denied) {
-        alertDialog(status1);
-      }
-    } else {
-      alertDialog(status);
-    }
-  }
 
   ///           ***get directory by VERSION***
   bool isDir = true;
@@ -101,8 +71,6 @@ class _DocumentListviewState extends State<DocumentListview> {
     }
     return exfilePath;
   }
-
-  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
   @override
   Widget build(BuildContext context) {
@@ -227,7 +195,7 @@ class _DocumentListviewState extends State<DocumentListview> {
                                       child: const Text('Deny')),
                                   ElevatedButton(
                                       onPressed: () async {
-                                        checkStoragePermission();
+                                        await checkStoragePermission();
                                       },
                                       child: const Text('Allow')),
                                 ],
@@ -262,8 +230,6 @@ class _DocumentListviewState extends State<DocumentListview> {
                 }
               })),
       floatingActionButton: FloatingActionButton(
-        
-      
         elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         child: Icon(Icons.folder, size: 35, color: Colors.orange.shade400),
@@ -291,7 +257,7 @@ class _DocumentListviewState extends State<DocumentListview> {
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Text(
-                'Please allow acces 🗝permission storage to display local PDF files'
+                'Please allow access 🗝permission storage to display local PDF files'
                     .toUpperCase(),
                 style: const TextStyle(fontSize: 16)),
             ElevatedButton(
@@ -309,6 +275,48 @@ class _DocumentListviewState extends State<DocumentListview> {
     );
   }
 
+  Future<void> checkStoragePermission() async {
+    var permission1 = await Permission.storage.request();
+    var permission2 = await Permission.manageExternalStorage.request();
+
+    String getVersion = await getPhoneVersion();
+    int version = int.parse(getVersion);
+    // get  storage  permission
+    if (version > 30 && permission2.isGranted || permission1.isGranted) {
+      await getPath();
+      setState((){});
+
+    } else {
+      alertDialog();
+    }
+  }
+
+  // check phone version///////////////////////////////////////
+  void alertDialog() {
+    Future.delayed(Duration.zero, () {
+      showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+                content: const Text(
+                    "Allow access to your storage to display PDF files."),
+                title: const Text("Alert!"),
+                actions: [
+                  ElevatedButton(
+                    child: const Text("No"),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  ElevatedButton(
+                      child: const Text("OK"),
+                      onPressed: () {
+                        checkStoragePermission();
+                      }),
+                ],
+              ));
+    });
+  }
+
   Future<String> getPhoneVersion() async {
     AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
     if (Platform.isAndroid) {
@@ -318,33 +326,6 @@ class _DocumentListviewState extends State<DocumentListview> {
       return iosInfo.systemVersion.toString();
     } else {
       throw UnimplementedError();
-    }
-  }
-
-  void alertDialog(PermissionStatus status) {
-    if (status.isDenied) {
-      Future.delayed(Duration.zero, () {
-        showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-                  content: const Text(
-                      "Allow permission to access your storage to display pdf files"),
-                  title: const Text("Alert!"),
-                  actions: [
-                    ElevatedButton(
-                      child: const Text("No"),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                    ElevatedButton(
-                        child: const Text("OK"),
-                        onPressed: () {
-                          checkStoragePermission();
-                        }),
-                  ],
-                ));
-      });
     }
   }
 }
